@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('git checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/pr-an/Ekart.git'
+                git branch: 'master', credentialsId: 'github-creds', url: 'https://github.com/pr-an/Ekart.git'
             }
         }
         stage('compile') {
@@ -27,10 +27,7 @@ pipeline {
         stage('SonarQube analysis') {
             steps {
                 withSonarQubeEnv('sonar-scanner') {
-                    sh "${env.SCANNER_HOME}/bin/sonar-scanner \
-                        -Dsonar.projectKey=EKART \
-                        -Dsonar.projectName=EKART \
-                        -Dsonar.java.binaries=target/classes"
+                    sh "${env.SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=EKART -Dsonar.projectName=EKART -Dsonar.java.binaries=target/classes"
                 }
             }
         }
@@ -57,7 +54,7 @@ pipeline {
         stage('build and Tag docker image') {
             steps {
                 script {
-                    sh "docker build -t youngminds73/ekart:latest -f docker/Dockerfile ."
+                    sh "docker build -t pran1555/ekart:latest -f docker/Dockerfile ."
                 }
             }
         }
@@ -65,9 +62,9 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                        sh 'docker login -u youngminds73 -p ${dockerhubpwd}'
+                        sh 'docker login -u pran1555 -p ${dockerhubpwd}'
                     }
-                    sh 'docker push youngminds73/ekart:latest'
+                    sh 'docker push pran1555/ekart:latest'
                 }
             }
         }
